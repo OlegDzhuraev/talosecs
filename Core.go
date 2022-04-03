@@ -5,6 +5,7 @@ var entsComponents = map[Entity][]any{}
 var componentsEnts = map[any]Entity{}
 var systems []System
 var signals []any
+var isInitialized bool
 
 // NewEntity creates new Entity in the game world.
 func NewEntity() Entity {
@@ -44,16 +45,20 @@ func DelComponent[T any](entity Entity) {
 	for component, mappedEnt := range componentsEnts {
 		if mappedEnt == entity {
 			if typedC, ok := component.(T); ok {
-				delete(componentsEnts, typedC)
+				DelConcreteComponent(typedC, entity)
 				break
 			}
 		}
 	}
+}
+
+func DelConcreteComponent(comp any, entity Entity) {
+	delete(componentsEnts, comp)
 
 	entityComponents := entsComponents[entity]
-	for componentIndex, component := range entityComponents {
-		if _, ok := component.(T); ok {
-			entsComponents[entity] = fastRemove(entityComponents, componentIndex)
+	for index, iteratingComp := range entityComponents {
+		if comp == iteratingComp {
+			entsComponents[entity] = fastRemove(entityComponents, index)
 			break
 		}
 	}
@@ -61,11 +66,6 @@ func DelComponent[T any](entity Entity) {
 	if len(entsComponents[entity]) == 0 {
 		KillEntity(entity)
 	}
-}
-
-func fastRemove(slice []any, i int) []any {
-	slice[i] = slice[len(slice)-1]
-	return slice[:len(slice)-1]
 }
 
 // GetComponent returns component of type T, attached to the entity. If there is component, returns false in 2nd result
@@ -80,10 +80,21 @@ func GetComponent[T any](entity Entity) (T, bool) {
 }
 
 // AddSystem adds system to the game flow. Add them before you call Init and Update. Order is important!
-func AddSystem(system System) { systems = append(systems, system) }
+func AddSystem(system System) {
+	if isInitialized {
+		panic("Can't add Systems after init!")
+	}
+
+	systems = append(systems, system)
+}
 
 // Init initializes all of your ECS systems. Call it once on game world start before calling Update
 func Init() {
+	initSystems()
+	isInitialized = true
+}
+
+func initSystems() {
 	for _, sys := range systems {
 		if init, ok := sys.(SystemInit); ok {
 			init.Init()
@@ -93,14 +104,26 @@ func Init() {
 
 // Update calls Update of each System every frame. Used to handle most of game logic.
 func Update() {
-	for _, sys := range systems {
-		sys.Update()
-	}
-
+	updateSystems()
+	clearOneFrames()
 	signals = nil
 }
 
-// TryAddSignal adds a new signal to the game flow. If signal of same type was already added, it will stop and return false
+func updateSystems() {
+	for _, sys := range systems {
+		sys.Update()
+	}
+}
+
+func clearOneFrames() {
+	for comp, _ := range componentsEnts {
+		if _, ok := comp.(OneFrame); ok {
+			DelConcreteComponent(comp, GetEntity(comp))
+		}
+	}
+}
+
+// TryAddSignal adds a new signal to the game flow. If signal of same type was already added, it will be cancelled and return false.
 func TryAddSignal[T any](signal T) bool {
 	for _, innerSignal := range signals {
 		if _, ok := innerSignal.(T); ok {
@@ -112,6 +135,7 @@ func TryAddSignal[T any](signal T) bool {
 	return true
 }
 
+// GetSignal returns registered signal of type T. If there no signal now, returns false.
 func GetSignal[T any]() (T, bool) {
 	for _, signal := range signals {
 		if typedSignal, ok := signal.(T); ok {
@@ -123,6 +147,7 @@ func GetSignal[T any]() (T, bool) {
 	return defaultT, false
 }
 
+// SuspendSignal of type T. It means that signal will not be passed to a next systems.
 func SuspendSignal[T any]() {
 	for i, signal := range signals {
 		if _, ok := signal.(T); ok {
