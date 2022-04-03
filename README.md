@@ -5,6 +5,8 @@ You can use it with any render or game framework, which can work with Go.
 
 Talos is pretty simple, I'm trying to use minimum amount of abstractions and boiler plate to make it easier to understand.
 
+Talos still work in progress, so there will be a lot of api changes, not production-ready now.
+
 ### Setup guide
 To install it in your go project, run this in the terminal:
 
