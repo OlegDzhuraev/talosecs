@@ -102,8 +102,20 @@ Filtering by a 2 components, excluding all entities, which have EnemyTag compone
 playerCharacters, playerHealths := talosecs.FilterW2Excl1[*Character, *Health, *EnemyTag]()
 ```
 
+Full usage example:
+```go
+func (ys *MiningSystem) Update() {
+	mines := talosecs.FilterWith[*MineBuilding]()
+	
+	for _, mineBuilding := range mines {
+		// Proceed some logic with mineBuilding 
+	}
+}
+```
+
 #### Signals
 Work in progress.
+
 
 ### Projects examples
 Maybe them will be added in future :)
