@@ -1,3 +1,3 @@
-module github.com/OlegDzhuraev/talosecs/v0.1.1
+module github.com/OlegDzhuraev/talosecs
 
 go 1.18
