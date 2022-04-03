@@ -115,9 +115,37 @@ func (ys *MiningSystem) Update() {
 }
 ```
 
-#### Signals
-Work in progress.
+### One-frame components
+Sometimes you need a component, which is live only one frame, something like event, applied to the entity. All one-frame components removed on the end of frame.
 
+Example how to mark your component one-frame:
+```go
+type YourComp struct {
+	talosecs.OneFrame
+	// your data below
+}
+```
+*Note: One-frames api is under costruct, it can be changed in future.*
+
+#### Signals
+You can use signals to send a global event. It can be useful when you don't want a specific entity for adding component to it, so you just register this component as Signal.
+
+Signal will be able in all systems, which is ordered below system register.
+Example:
+```go
+// Signal structure, same to usual component
+type BuildSignal struct {
+	Position Vector2
+}
+
+// Registering a new signal, Try will return false if same signal was already registered.
+talosecs.TryAddSignal(&signals.BuildSignal{Position: Vector2(X: 100, Y: 200)})
+
+// Reading the signal:
+if signal, ok := talosecs.GetSignal[*BuildSignal](); ok {
+	// Do something
+}
+```
 
 ### Projects examples
 Maybe them will be added in future :)
