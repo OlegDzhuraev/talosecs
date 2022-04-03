@@ -1,7 +1,7 @@
 package talosecs
 
 var systems []System
-var entsAlive = map[Entity]bool{} // todo is map needed there? I think simple slice is better
+var entities = EntitySet{}
 var entsComponents = map[Entity][]any{}
 var currentEntityId Entity
 var componentsEnts = map[any]Entity{}
@@ -11,17 +11,17 @@ var signals []any
 func NewEntity() Entity {
 	currentEntityId++
 	id := currentEntityId
-	entsAlive[id] = true
+	entities[id] = true
 	return id
 }
 
 func GetEntity(comp any) Entity  { return componentsEnts[comp] }
-func IsAlive(entity Entity) bool { return entsAlive[entity] }
+func IsAlive(entity Entity) bool { return entities[entity] }
 func SameEntity(a, b any) bool   { return GetEntity(a) == GetEntity(b) }
 
 func KillEntity(entity Entity) {
 	if IsAlive(entity) {
-		delete(entsAlive, entity)
+		delete(entities, entity)
 
 		for _, component := range entsComponents[entity] {
 			delete(componentsEnts, component)
