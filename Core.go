@@ -100,6 +100,7 @@ func Update() {
 	signals = nil
 }
 
+// TryAddSignal adds a new signal to the game flow. If signal of same type was already added, it will stop and return false
 func TryAddSignal[T any](signal T) bool {
 	for _, innerSignal := range signals {
 		if _, ok := innerSignal.(T); ok {
