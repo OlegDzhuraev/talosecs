@@ -1,28 +1,30 @@
 package talosecs
 
-var systems []System
-var entities = EntitySet{}
-var entsComponents = map[Entity][]any{}
 var currentEntityId Entity
+var entsComponents = map[Entity][]any{}
 var componentsEnts = map[any]Entity{}
+var systems []System
 var signals []any
 
 // NewEntity creates new Entity in the game world.
 func NewEntity() Entity {
 	currentEntityId++
 	id := currentEntityId
-	entities[id] = true
+	entsComponents[id] = []any{}
+
 	return id
 }
 
-func GetEntity(comp any) Entity  { return componentsEnts[comp] }
-func IsAlive(entity Entity) bool { return entities[entity] }
-func SameEntity(a, b any) bool   { return GetEntity(a) == GetEntity(b) }
+func GetEntity(comp any) Entity { return componentsEnts[comp] }
+func IsAlive(entity Entity) bool {
+	_, exist := entsComponents[entity]
+	return exist
+}
+
+func SameEntity(a, b any) bool { return GetEntity(a) == GetEntity(b) }
 
 func KillEntity(entity Entity) {
 	if IsAlive(entity) {
-		delete(entities, entity)
-
 		for _, component := range entsComponents[entity] {
 			delete(componentsEnts, component)
 		}
@@ -54,6 +56,10 @@ func DelComponent[T any](entity Entity) {
 			entsComponents[entity] = fastRemove(entityComponents, componentIndex)
 			break
 		}
+	}
+
+	if len(entsComponents[entity]) == 0 {
+		KillEntity(entity)
 	}
 }
 
