@@ -120,10 +120,9 @@ Sometimes you need a component, which is live only one frame, something like eve
 
 Example how to mark your component one-frame:
 ```go
-type YourComp struct {
-	talosecs.OneFrame
-	// your data below
-}
+talosecs.AddOneFrame(entity, &YourComponent{})
+// or
+entity.OneFrame(&YourComponent{})
 ```
 *Note: One-frames api is under costruct, it can be changed in future.*
 

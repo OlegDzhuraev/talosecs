@@ -3,6 +3,7 @@ package talosecs
 var currentEntityId Entity
 var entsComponents = map[Entity][]any{}
 var componentsEnts = map[any]Entity{}
+var oneFrames []any
 var systems []System
 var signals []any
 var isInitialized bool
@@ -38,6 +39,12 @@ func KillEntity(entity Entity) {
 func AddComponent(entity Entity, comp any) {
 	componentsEnts[comp] = entity
 	entsComponents[entity] = append(entsComponents[entity], comp)
+}
+
+// AddOneFrame is same to AddComponent, but components added with this function live only one frame.
+func AddOneFrame(entity Entity, comp any) {
+	oneFrames = append(oneFrames, comp)
+	AddComponent(entity, comp)
 }
 
 // DelComponent removes component of type T of specified entity. It will be not catched in next systems and next GetComponent (even in the same frame).
@@ -116,11 +123,11 @@ func updateSystems() {
 }
 
 func clearOneFrames() {
-	for comp, _ := range componentsEnts {
-		if _, ok := comp.(OneFrame); ok {
-			DelConcreteComponent(comp, GetEntity(comp))
-		}
+	for _, comp := range oneFrames {
+		DelConcreteComponent(comp, GetEntity(comp))
 	}
+
+	oneFrames = nil
 }
 
 // TryAddSignal adds a new signal to the game flow. If signal of same type was already added, it will be cancelled and return false.
