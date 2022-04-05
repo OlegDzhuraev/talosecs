@@ -1,10 +1,12 @@
 package talosecs
 
-func FilterWith[T any]() []T {
-	var result []T
-	for c := range componentsEnts {
-		if typedC, ok := c.(T); ok {
-			result = append(result, typedC)
+func FilterWith[A any]() []A {
+	slice, length := getComponentsSlice[A]()
+	var result = make([]A, length)
+
+	for i, c := range slice { // I can't just return slice because it is of type []any, and there is no fast way of conversion to the []A
+		if compA, ok := c.(A); ok {
+			result[i] = compA
 		}
 	}
 
@@ -12,104 +14,117 @@ func FilterWith[T any]() []T {
 }
 
 func FilterWith2[A any, B any]() ([]A, []B) {
-	var resultA []A
-	var resultB []B
+	sliceA, maxLength := getComponentsSlice[A]()
+	var resultA = make([]A, maxLength)
+	var resultB = make([]B, maxLength)
 
-	for c, entId := range componentsEnts {
-		if typeA, ok := c.(A); ok {
-			if typeB, ok2 := GetComponent[B](entId); ok2 {
-				resultA = append(resultA, typeA)
-				resultB = append(resultB, typeB)
+	i := 0
+	for _, c := range sliceA {
+		if compA, ok := c.(A); ok {
+			e := GetEntity(compA)
+			if compB, ok2 := GetComponent[B](e); ok2 {
+				resultA[i] = compA
+				resultB[i] = compB
+				i++
 			}
 		}
 	}
 
-	return resultA, resultB
+	return resultA[:i], resultB[:i]
 }
 
 func FilterWith3[A any, B any, C any]() ([]A, []B, []C) {
-	var resultA []A
-	var resultB []B
-	var resultC []C
+	sliceA, maxLength := getComponentsSlice[A]()
+	var resultA = make([]A, maxLength)
+	var resultB = make([]B, maxLength)
+	var resultC = make([]C, maxLength)
 
-	for c, entId := range componentsEnts {
-		if typeA, ok := c.(A); ok {
-			if typeB, ok2 := GetComponent[B](entId); ok2 {
-				if typeC, ok3 := GetComponent[C](entId); ok3 {
-					resultA = append(resultA, typeA)
-					resultB = append(resultB, typeB)
-					resultC = append(resultC, typeC)
+	i := 0
+	for _, c := range sliceA {
+		if compA, ok := c.(A); ok {
+			e := GetEntity(compA)
+			if compB, ok2 := GetComponent[B](e); ok2 {
+				if compC, ok3 := GetComponent[C](e); ok3 {
+					resultA[i] = compA
+					resultB[i] = compB
+					resultC[i] = compC
+					i++
 				}
 			}
 		}
 	}
 
-	return resultA, resultB, resultC
+	return resultA[:i], resultB[:i], resultC[:i]
 }
 
-func FilterW1Excl1[With any, Without any]() []With {
-	var result []With
-	for c := range componentsEnts {
-		if typedC, ok := c.(With); ok {
-			if _, isExclude := c.(Without); isExclude == false {
-				result = append(result, typedC)
+func FilterW1Excl1[A any, Excl any]() []A {
+	slice, length := getComponentsSlice[A]()
+	var result = make([]A, length)
+
+	i := 0
+	for _, c := range slice {
+		e := GetEntity(c)
+		if compA, ok := c.(A); ok && !HasComponent[Excl](e) {
+			result[i] = compA
+			i++
+		}
+	}
+
+	return result[:i]
+}
+
+func FilterW2Excl1[A any, B any, Excl any]() ([]A, []B) {
+	sliceA, maxLength := getComponentsSlice[A]()
+	var resultA = make([]A, maxLength)
+	var resultB = make([]B, maxLength)
+
+	i := 0
+	for _, c := range sliceA {
+		if compA, ok := c.(A); ok {
+			e := GetEntity(compA)
+			if compB, ok2 := GetComponent[B](e); ok2 && !HasComponent[Excl](e) {
+				resultA[i] = compA
+				resultB[i] = compB
+				i++
 			}
 		}
 	}
 
-	return result
+	return resultA[:i], resultB[:i]
 }
 
-func FilterW2Excl1[WithA any, WithB any, Without any]() ([]WithA, []WithB) {
-	var resultA []WithA
-	var resultB []WithB
+func FilterW1Excl2[A any, ExclA any, ExclB any]() []A {
+	slice, length := getComponentsSlice[A]()
+	var result = make([]A, length)
 
-	for c, entId := range componentsEnts {
-		if typedA, ok := c.(WithA); ok {
-			if typedB, ok2 := GetComponent[WithB](entId); ok2 {
-				if _, isExclude := c.(Without); isExclude == false {
-					resultA = append(resultA, typedA)
-					resultB = append(resultB, typedB)
-				}
+	i := 0
+	for _, c := range slice {
+		e := GetEntity(c)
+		if compA, ok := c.(A); ok && !HasComponent[ExclA](e) && !HasComponent[ExclB](e) {
+			result[i] = compA
+			i++
+		}
+	}
+
+	return result[:i]
+}
+
+func FilterW2Excl2[A any, B any, ExclA any, ExclB any]() ([]A, []B) {
+	sliceA, maxLength := getComponentsSlice[A]()
+	var resultA = make([]A, maxLength)
+	var resultB = make([]B, maxLength)
+
+	i := 0
+	for _, c := range sliceA {
+		if compA, ok := c.(A); ok {
+			e := GetEntity(compA)
+			if compB, ok2 := GetComponent[B](e); ok2 && !HasComponent[ExclA](e) && !HasComponent[ExclB](e) {
+				resultA[i] = compA
+				resultB[i] = compB
+				i++
 			}
 		}
 	}
 
-	return resultA, resultB
-}
-
-func FilterW1Excl2[WithA any, WithoutA any, WithoutB any]() []WithA {
-	var result []WithA
-
-	for c := range componentsEnts {
-		if typedC, ok := c.(WithA); ok {
-			if _, isExcludeA := c.(WithoutA); isExcludeA == false {
-				if _, isExcludeB := c.(WithoutB); isExcludeB == false {
-					result = append(result, typedC)
-				}
-			}
-		}
-	}
-
-	return result
-}
-
-func FilterW2Excl2[WithA any, WithB any, WithoutA any, WithoutB any]() ([]WithA, []WithB) {
-	var resultA []WithA
-	var resultB []WithB
-
-	for c, entId := range componentsEnts {
-		if typedA, ok := c.(WithA); ok {
-			if typedB, ok2 := GetComponent[WithB](entId); ok2 {
-				if _, isExcludeA := c.(WithoutA); isExcludeA == false {
-					if _, isExcludeB := c.(WithoutB); isExcludeB == false {
-						resultA = append(resultA, typedA)
-						resultB = append(resultB, typedB)
-					}
-				}
-			}
-		}
-	}
-
-	return resultA, resultB
+	return resultA[:i], resultB[:i]
 }

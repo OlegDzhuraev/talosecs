@@ -1,8 +1,11 @@
 package talosecs
 
+import "reflect"
+
 var currentEntityId Entity
-var entsComponents = map[Entity][]any{}
-var componentsEnts = map[any]Entity{}
+var entsComponents = map[Entity][]any{}       // for filters
+var componentsEnts = map[any]Entity{}         // for GetEntity
+var componentsPool = map[reflect.Type][]any{} // for GetComponent + filters too
 var oneFrames []any
 var systems []System
 var signals []any
@@ -37,6 +40,16 @@ func KillEntity(entity Entity) {
 
 // AddComponent adds any Component to the specified Entity. Component is a simple data struct.
 func AddComponent(entity Entity, comp any) {
+	typeOf := reflect.TypeOf(comp)
+	var componentsSlice []any // todo use getComponentsSlice()
+
+	if foundSlice, ok := componentsPool[typeOf]; ok {
+		componentsSlice = foundSlice
+	}
+
+	componentsSlice = append(componentsSlice, comp)
+
+	componentsPool[typeOf] = componentsSlice
 	componentsEnts[comp] = entity
 	entsComponents[entity] = append(entsComponents[entity], comp)
 }
@@ -47,7 +60,7 @@ func AddOneFrame(entity Entity, comp any) {
 	AddComponent(entity, comp)
 }
 
-// DelComponent removes component of type T of specified entity. It will be not catched in next systems and next GetComponent (even in the same frame).
+// DelComponent removes component of type T of specified entity. It will be not caught in next systems and next GetComponent (even in the same frame).
 func DelComponent[T any](entity Entity) {
 	for component, mappedEnt := range componentsEnts {
 		if mappedEnt == entity {
@@ -84,6 +97,25 @@ func GetComponent[T any](entity Entity) (T, bool) {
 	}
 	var defaultT T
 	return defaultT, false
+}
+
+func HasComponent[T any](entity Entity) bool {
+	_, has := GetComponent[T](entity)
+	return has
+}
+
+func getComponentsSlice[T any]() ([]any, int) {
+	var defaultT T // workaround :/
+	typeT := reflect.TypeOf(defaultT)
+	var slice []any
+
+	if foundSlice, ok := componentsPool[typeT]; ok {
+		slice = foundSlice
+	} else {
+		componentsPool[typeT] = slice
+	}
+
+	return slice, len(slice)
 }
 
 // AddSystem adds system to the game flow. Add them before you call Init and Update. Order is important!
@@ -142,7 +174,7 @@ func TryAddSignal[T any](signal T) bool {
 	return true
 }
 
-// GetSignal returns registered signal of type T. If there no signal now, returns false.
+// GetSignal returns registered signal of type T. If there is no signal now, returns false.
 func GetSignal[T any]() (T, bool) {
 	for _, signal := range signals {
 		if typedSignal, ok := signal.(T); ok {
