@@ -62,18 +62,25 @@ func AddOneFrame(entity Entity, comp any) {
 
 // DelComponent removes component of type T of specified entity. It will be not caught in next systems and next GetComponent (even in the same frame).
 func DelComponent[T any](entity Entity) {
-	for component, mappedEnt := range componentsEnts {
-		if mappedEnt == entity {
-			if typedC, ok := component.(T); ok {
-				DelConcreteComponent(typedC, entity)
-				break
-			}
-		}
+	comp, isExist := GetComponent[T](entity)
+
+	if isExist {
+		DelConcreteComponent(comp, entity)
 	}
 }
 
 func DelConcreteComponent(comp any, entity Entity) {
 	delete(componentsEnts, comp)
+
+	typeOf := reflect.TypeOf(comp)
+	if foundSlice, ok := componentsPool[typeOf]; ok { // todo use getComponentsSlice()
+		for i, c := range foundSlice {
+			if c == comp {
+				componentsPool[typeOf] = append(foundSlice[:i], foundSlice[i+1:]...)
+				break
+			}
+		}
+	}
 
 	entityComponents := entsComponents[entity]
 	for index, iteratingComp := range entityComponents {
