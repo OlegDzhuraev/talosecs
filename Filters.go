@@ -1,7 +1,7 @@
 package talosecs
 
 func FilterWith[A any]() []A {
-	slice, length := getComponentsSlice[A]()
+	slice, length := getComponentsGeneric[A]()
 	var result = make([]A, length)
 
 	for i, c := range slice { // I can't just return slice because it is of type []any, and there is no fast way of conversion to the []A
@@ -14,7 +14,7 @@ func FilterWith[A any]() []A {
 }
 
 func FilterWith2[A any, B any]() ([]A, []B) {
-	sliceA, maxLength := getComponentsSlice[A]()
+	sliceA, maxLength := getComponentsGeneric[A]()
 	var resultA = make([]A, maxLength)
 	var resultB = make([]B, maxLength)
 
@@ -34,7 +34,7 @@ func FilterWith2[A any, B any]() ([]A, []B) {
 }
 
 func FilterWith3[A any, B any, C any]() ([]A, []B, []C) {
-	sliceA, maxLength := getComponentsSlice[A]()
+	sliceA, maxLength := getComponentsGeneric[A]()
 	var resultA = make([]A, maxLength)
 	var resultB = make([]B, maxLength)
 	var resultC = make([]C, maxLength)
@@ -58,7 +58,7 @@ func FilterWith3[A any, B any, C any]() ([]A, []B, []C) {
 }
 
 func FilterW1Excl1[A any, Excl any]() []A {
-	slice, length := getComponentsSlice[A]()
+	slice, length := getComponentsGeneric[A]()
 	var result = make([]A, length)
 
 	i := 0
@@ -74,7 +74,7 @@ func FilterW1Excl1[A any, Excl any]() []A {
 }
 
 func FilterW2Excl1[A any, B any, Excl any]() ([]A, []B) {
-	sliceA, maxLength := getComponentsSlice[A]()
+	sliceA, maxLength := getComponentsGeneric[A]()
 	var resultA = make([]A, maxLength)
 	var resultB = make([]B, maxLength)
 
@@ -94,7 +94,7 @@ func FilterW2Excl1[A any, B any, Excl any]() ([]A, []B) {
 }
 
 func FilterW1Excl2[A any, ExclA any, ExclB any]() []A {
-	slice, length := getComponentsSlice[A]()
+	slice, length := getComponentsGeneric[A]()
 	var result = make([]A, length)
 
 	i := 0
@@ -110,7 +110,7 @@ func FilterW1Excl2[A any, ExclA any, ExclB any]() []A {
 }
 
 func FilterW2Excl2[A any, B any, ExclA any, ExclB any]() ([]A, []B) {
-	sliceA, maxLength := getComponentsSlice[A]()
+	sliceA, maxLength := getComponentsGeneric[A]()
 	var resultA = make([]A, maxLength)
 	var resultB = make([]B, maxLength)
 
