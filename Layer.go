@@ -28,6 +28,8 @@ func AddSystem(layer *Layer, system any) {
 	}
 }
 
+func (layer *Layer) Add(system any) { AddSystem(layer, system) }
+
 func (layer *Layer) Init() {
 	for _, initSystem := range layer.initSystems {
 		initSystem.Init()
