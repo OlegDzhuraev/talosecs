@@ -59,13 +59,19 @@ ent.Add(&Attack{Damage: 5, Distance: 100})
 #### Layers
 Layer unions several systems into one group. You can use it to separate features. For example, one layer for gameplay loop, another - for render, third - for UI render, etc.
 But you also can use one layer for all game systems. :)
+
 Make new layer example:
 ```go
     mainLayer := ecs.NewLayer() 
-    ecs.AddLayer(mainLayer) // not necessary step, you can also do mainLayer.Init() and mainLayer.Update() directly.
+    ecs.AddLayer(mainLayer) // not necessary step, you can also call mainLayer.Init() and mainLayer.Update() directly.
 ```
 
 All layers have access to all game entities and components.
+
+You also can disable Layer update loop (for example, if you need to stop render UI):
+```go
+mainLayer.Active = false
+```
 
 #### Systems
 System handle all registered components, doing some game logic.
