@@ -5,7 +5,7 @@ You can use it with any render or game framework, which can work with Go.
 
 Talos is pretty simple, I'm trying to use minimum amount of abstractions and boiler plate to make it easier to understand.
 
-Talos still work in progress, so there will be a lot of api changes, not production-ready now.
+**Warning: Talos still work in progress**, so there will be a lot of api changes, it is not production-ready.
 
 ### Setup guide
 To install it in your go project, run this in the terminal:
@@ -22,20 +22,22 @@ package main
 import ecs "github.com/OlegDzhuraev/talosecs"
 
 func main() {
-  ecs.AddSystem(&SystemA{}) // Adding systems first, remember that order is important
-  ecs.AddSystem(&SystemB{})
-  // ecs.AddSystem(&SystemC{})
+    mainLayer := ecs.NewLayer() // adding main game loop layer. You can have several layers, each one can group systems by same feature for example.
+    ecs.AddLayer(mainLayer) // you can add layer to the ECS for autorun like this. Or, you can run it directly by Init and Update methods.
+	
+    ecs.AddSystem(mainLayer, &SystemA{}) // Adding systems first, remember that order is important
+    ecs.AddSystem(mainLayer, &SystemB{})
+    // ecs.AddSystem(mainLayer, &SystemC{})
   
-  // Any other initialization can be placed there
- 
-  ecs.Init()  // Now we're running all systems initialization
+    // Any other initialization can be placed there
+    
+    ecs.Init()  // Now we're running all layers with systems initialization
   
-  for { // Some update loop, break it when app should be closed
-    ecs.Update() // Updating all systems
-  }
+    for { // Some update loop, break it when app should be closed
+        ecs.Update() // Updating all layers with systems
+    }
 }
 ```
-
 
 #### Components
 Component is a simple struct, you can store any data in component.
@@ -47,13 +49,23 @@ type Attack struct {
 ```
 
 #### Entities
-Making a new entity with some components:
+Entity is a simple number id to connect components with one object. Making a new entity with some components:
 
 ```go
 ent := talosecs.NewEntity()
 ent.Add(&Move{Speed: 10})
 ent.Add(&Attack{Damage: 5, Distance: 100})
 ```
+#### Layers
+Layer unions several systems into one group. You can use it to separate features. For example, one layer for gameplay loop, another - for render, third - for UI render, etc.
+But you also can use one layer for all game systems. :)
+Make new layer example:
+```go
+    mainLayer := ecs.NewLayer() 
+    ecs.AddLayer(mainLayer) // not necessary step, you can also do mainLayer.Init() and mainLayer.Update() directly.
+```
+
+All layers have access to all game entities and components.
 
 #### Systems
 System handle all registered components, doing some game logic.
@@ -72,7 +84,7 @@ func (ys *YourSystem) Update() {
 ```
 Dont forget to add it to the game loop.
 ```go
-ecs.AddSystem(&YourSystem{})
+layer.AddSystem(&YourSystem{})
 ```
 
 #### Filters
@@ -106,7 +118,7 @@ playerCharacters, playerHealths := talosecs.FilterW2Excl1[*Character, *Health, *
 
 Full usage example:
 ```go
-func (ys *MiningSystem) Update() {
+func (ms *MiningSystem) Update() {
 	mines := talosecs.FilterWith[*MineBuilding]()
 	
 	for _, mineBuilding := range mines {
@@ -124,7 +136,6 @@ talosecs.AddOneFrame(entity, &YourComponent{})
 // or
 entity.OneFrame(&YourComponent{})
 ```
-*Note: One-frames api is under costruct, it can be changed in future.*
 
 #### Signals
 You can use signals to send a global event. It can be useful when you don't want a specific entity for adding component to it, so you just register this component as Signal.

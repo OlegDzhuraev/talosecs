@@ -10,13 +10,13 @@ func Init() {
 		panic("ECS already initialized!")
 	}
 
-	doInitSystems()
+	initLayers()
 	isInitialized = true
 }
 
 // Update calls Update of each UpdateSystem every frame. Used to handle most of game logic.
 func Update() {
-	doUpdateSystems()
+	updateLayers()
 	clearOneFrames()
 	signals = nil
 }
@@ -27,8 +27,7 @@ func Reset() {
 	componentsEnts = map[any]Entity{}
 	signals = nil
 	oneFrames = nil
-	updateSystems = nil
-	initSystems = nil
+	layers = nil
 
 	currentEntityId = 0
 	isInitialized = false

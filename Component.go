@@ -4,7 +4,7 @@ import "reflect"
 
 var entsComponents = map[Entity][]any{}       // for filters
 var componentsEnts = map[any]Entity{}         // for GetEntity
-var componentsPool = map[reflect.Type][]any{} // for GetComponent + filters too
+var componentsPool = map[reflect.Type][]any{} // for GetComponent + filters
 
 // AddComponent adds any Component to the specified Entity. Component is a simple data struct.
 func AddComponent(entity Entity, comp any) {
