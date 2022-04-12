@@ -156,7 +156,7 @@ type BuildSignal struct {
 }
 
 // Registering a new signal, Try will return false if same signal was already registered.
-talosecs.TryAddSignal(&signals.BuildSignal{Position: Vector2(X: 100, Y: 200)})
+talosecs.TryAddSignal(&signals.BuildSignal{Position: Vector2{X: 100, Y: 200}})
 
 // Reading the signal:
 if signal, ok := talosecs.GetSignal[*BuildSignal](); ok {
