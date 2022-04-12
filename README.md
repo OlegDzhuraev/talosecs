@@ -63,8 +63,8 @@ But you also can use one layer for all game systems. :)
 
 Make new layer example:
 ```go
-    mainLayer := ecs.NewLayer() 
-    ecs.AddLayer(mainLayer) // not necessary step, you can also call mainLayer.Init() and mainLayer.Update() directly.
+mainLayer := ecs.NewLayer() 
+ecs.AddLayer(mainLayer) // not necessary step, you can also call mainLayer.Init() and mainLayer.Update() directly.
 ```
 
 All layers have access to all game entities and components.
