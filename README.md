@@ -166,7 +166,7 @@ if signal, ok := talosecs.GetSignal[*BuildSignal](); ok {
 
 ### Projects examples
 
-#### Tower defense game with a Talos ECS
+#### Tower defense game with Talos ECS
 ![TD Game](https://media.giphy.com/media/3T418nRvjGL4VdskD2/giphy.gif)
 
 **Link:** [EcsTowerDefense](https://github.com/OlegDzhuraev/EcsTowerDefense)
