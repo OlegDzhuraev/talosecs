@@ -51,14 +51,15 @@ func (layer *Layer) Update() {
 
 var layers []*Layer
 
-func AddLayer(layer *Layer) {
+func AddLayer(layer *Layer) bool {
 	for _, registeredLayer := range layers {
 		if registeredLayer == layer {
-			return
+			return false
 		}
 	}
 
 	layers = append(layers, layer)
+	return true
 }
 
 func initLayers() {
