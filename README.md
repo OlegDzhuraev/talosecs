@@ -23,11 +23,12 @@ import ecs "github.com/OlegDzhuraev/talosecs"
 
 func main() {
     mainLayer := ecs.NewLayer() // adding main game loop layer. You can have several layers, each one can group systems by same feature for example.
+
+    mainLayer.Add(&SystemA{}) // Adding systems first, remember that order is important
+    mainLayer.Add(&SystemB{})
+    // mainLayer.Add(&SystemC{})
+    
     ecs.AddLayer(mainLayer) // you can add layer to the ECS for autorun like this. Or, you can run it directly by Init and Update methods.
-	
-    ecs.AddSystem(mainLayer, &SystemA{}) // Adding systems first, remember that order is important
-    ecs.AddSystem(mainLayer, &SystemB{})
-    // ecs.AddSystem(mainLayer, &SystemC{})
   
     // Any other initialization can be placed there
     
@@ -43,8 +44,8 @@ func main() {
 Component is a simple struct, you can store any data in component.
 ```go
 type Attack struct {
-	Damage     float32
-	ReloadTime float32
+    Damage     float32
+    ReloadTime float32
 }
 ```
 
@@ -62,8 +63,8 @@ But you also can use one layer for all game systems. :)
 
 Make new layer example:
 ```go
-    mainLayer := ecs.NewLayer() 
-    ecs.AddLayer(mainLayer) // not necessary step, you can also call mainLayer.Init() and mainLayer.Update() directly.
+mainLayer := ecs.NewLayer() 
+ecs.AddLayer(mainLayer) // not necessary step, you can also call mainLayer.Init() and mainLayer.Update() directly.
 ```
 
 All layers have access to all game entities and components.
@@ -125,11 +126,11 @@ playerCharacters, playerHealths := talosecs.FilterW2Excl1[*Character, *Health, *
 Full usage example:
 ```go
 func (ms *MiningSystem) Update() {
-	mines := talosecs.FilterWith[*MineBuilding]()
+    mines := talosecs.FilterWith[*MineBuilding]()
 	
-	for _, mineBuilding := range mines {
-		// Proceed some logic with mineBuilding 
-	}
+    for _, mineBuilding := range mines {
+    // Proceed some logic with mineBuilding 
+    }
 }
 ```
 
@@ -151,20 +152,24 @@ Example:
 ```go
 // Signal structure, same to usual component
 type BuildSignal struct {
-	Position Vector2
+    Position Vector2
 }
 
 // Registering a new signal, Try will return false if same signal was already registered.
-talosecs.TryAddSignal(&signals.BuildSignal{Position: Vector2(X: 100, Y: 200)})
+talosecs.TryAddSignal(&signals.BuildSignal{Position: Vector2{X: 100, Y: 200}})
 
 // Reading the signal:
 if signal, ok := talosecs.GetSignal[*BuildSignal](); ok {
-	// Do something
+    // Do something
 }
 ```
 
 ### Projects examples
-Maybe them will be added in future :)
+
+#### Tower defense game with Talos ECS
+![TD Game](https://media.giphy.com/media/3T418nRvjGL4VdskD2/giphy.gif)
+
+**Link:** [EcsTowerDefense](https://github.com/OlegDzhuraev/EcsTowerDefense)
 
 ### License
 MIT License
