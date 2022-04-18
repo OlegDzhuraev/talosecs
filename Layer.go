@@ -28,7 +28,12 @@ func AddSystem(layer *Layer, system any) {
 	}
 }
 
-func (layer *Layer) Add(system any) { AddSystem(layer, system) }
+// Add adds system to the layer. Also returns this layer, so you can add another system.
+func (layer *Layer) Add(system any) *Layer {
+	AddSystem(layer, system)
+
+	return layer
+}
 
 func (layer *Layer) Init() {
 	for _, initSystem := range layer.initSystems {
