@@ -1,10 +1,7 @@
 package talosecs
 
-import "reflect"
-
-var entsComponents = map[Entity][]any{}       // for filters
-var componentsEnts = map[any]Entity{}         // for GetEntity
-var componentsPool = map[reflect.Type][]any{} // for GetComponent + filters
+var entsComponents = map[Entity][]any{} // for fast KillEntity
+var componentsEnts = map[any]Entity{}   // for GetEntity
 
 // AddComponent adds any Component to the specified Entity. Component is a simple data struct.
 func AddComponent(entity Entity, comp any) {
@@ -12,12 +9,12 @@ func AddComponent(entity Entity, comp any) {
 		panic("Only pointers to components allowed!")
 	}
 
-	componentsSlice, typeOf := getComponentsSpecificOutType(comp)
-	componentsSlice = append(componentsSlice, comp)
-	componentsPool[typeOf] = componentsSlice
+	// todo disallow multiple component of the same type
 
 	componentsEnts[comp] = entity
 	entsComponents[entity] = append(entsComponents[entity], comp)
+
+	updateFilters(entity)
 }
 
 // DelComponent removes component of type T of specified entity. It will be not caught in next updateSystems and next GetComponent (even in the same frame).
@@ -32,14 +29,6 @@ func DelComponent[T any](entity Entity) {
 func DelSpecificComponent(comp any, entity Entity) {
 	delete(componentsEnts, comp)
 
-	componentsSlice, typeOf := getComponentsSpecificOutType(comp)
-	for i, c := range componentsSlice {
-		if c == comp {
-			componentsPool[typeOf] = fastRemove(componentsSlice, i)
-			break
-		}
-	}
-
 	entityComponents := entsComponents[entity]
 	for i, iteratingC := range entityComponents {
 		if comp == iteratingC {
@@ -51,6 +40,8 @@ func DelSpecificComponent(comp any, entity Entity) {
 	if len(entsComponents[entity]) == 0 {
 		fullRemoveEntity(entity)
 	}
+
+	updateFilters(entity)
 }
 
 // GetComponent returns component of type T, attached to the entity. If there is component, returns false in 2nd result
@@ -67,31 +58,4 @@ func GetComponent[T any](entity Entity) (T, bool) {
 func HasComponent[T any](entity Entity) bool {
 	_, has := GetComponent[T](entity)
 	return has
-}
-
-func getComponentsGeneric[T any]() ([]any, int) {
-	var defaultT T // workaround :/
-	return getComponentsSameTo(defaultT)
-}
-
-func getComponentsSameTo(comp any) ([]any, int) {
-	return getComponentsOfType(reflect.TypeOf(comp))
-}
-
-func getComponentsSpecificOutType(comp any) ([]any, reflect.Type) {
-	rType := reflect.TypeOf(comp)
-	slice, _ := getComponentsOfType(rType)
-	return slice, rType
-}
-
-func getComponentsOfType(rType reflect.Type) ([]any, int) {
-	var slice []any
-
-	if foundSlice, ok := componentsPool[rType]; ok {
-		slice = foundSlice
-	} else {
-		componentsPool[rType] = slice
-	}
-
-	return slice, len(slice)
 }

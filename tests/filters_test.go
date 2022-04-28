@@ -7,12 +7,14 @@ import (
 
 func TestFilterWithAmount(t *testing.T) {
 	talosecs.Reset()
+
+	filter := &talosecs.FilterWith[*CompA]{}
+	talosecs.AddFilter(filter)
+
 	makeEntA()
 
-	filter := talosecs.FilterWith[*CompA]()
-
 	amount := 0
-	for range filter {
+	for range filter.A {
 		amount++
 	}
 
@@ -23,13 +25,15 @@ func TestFilterWithAmount(t *testing.T) {
 
 func TestFilterWith2Amount(t *testing.T) {
 	talosecs.Reset()
+
+	filter := &talosecs.FilterW2[*CompA, *CompB]{}
+	talosecs.AddFilter(filter)
+
 	makeEntA()
 	makeEntAb()
 
-	filter, _ := talosecs.FilterWith2[*CompA, *CompB]()
-
 	amount := 0
-	for range filter {
+	for range filter.A {
 		amount++
 	}
 
@@ -40,12 +44,14 @@ func TestFilterWith2Amount(t *testing.T) {
 
 func TestFilterWithCorrectComponent(t *testing.T) {
 	talosecs.Reset()
+
+	filter := &talosecs.FilterWith[*CompA]{}
+	talosecs.AddFilter(filter)
+
 	makeEntA()
 
-	filter := talosecs.FilterWith[*CompA]()
-
 	var result *CompA
-	for _, c := range filter {
+	for _, c := range filter.A {
 		result = c
 		break
 	}
@@ -57,13 +63,15 @@ func TestFilterWithCorrectComponent(t *testing.T) {
 
 func TestFilterWith3Amount(t *testing.T) {
 	talosecs.Reset()
+
+	filter := &talosecs.FilterW3[*CompA, *CompC, *CompB]{}
+	talosecs.AddFilter(filter)
+
 	makeEntA()
 	makeEntAbc()
 
-	filter, _, _ := talosecs.FilterWith3[*CompA, *CompC, *CompB]()
-
 	amount := 0
-	for range filter {
+	for range filter.A {
 		amount++
 	}
 
@@ -74,13 +82,15 @@ func TestFilterWith3Amount(t *testing.T) {
 
 func TestFilterW1Excl1(t *testing.T) {
 	talosecs.Reset()
+
+	filter := &talosecs.FilterW1Exc1[*CompA, *CompB]{}
+	talosecs.AddFilter(filter)
+
 	makeEntA()
 	makeEntAb()
 
-	filter := talosecs.FilterW1Excl1[*CompA, *CompB]()
-
 	amount := 0
-	for range filter {
+	for range filter.A {
 		amount++
 	}
 
@@ -91,14 +101,16 @@ func TestFilterW1Excl1(t *testing.T) {
 
 func TestFilterW2Excl1Amount(t *testing.T) {
 	talosecs.Reset()
+
+	filter := &talosecs.FilterW2Exc1[*CompA, *CompC, *CompB]{}
+	talosecs.AddFilter(filter)
+
 	makeEntA()
 	makeEntAb()
 	makeEntAc()
 
-	filter, _ := talosecs.FilterW2Excl1[*CompA, *CompC, *CompB]()
-
 	amount := 0
-	for range filter {
+	for range filter.A {
 		amount++
 	}
 
@@ -110,15 +122,16 @@ func TestFilterW2Excl1Amount(t *testing.T) {
 func TestFilterW1Excl2Amount(t *testing.T) {
 	talosecs.Reset()
 
+	filter := &talosecs.FilterW1Exc2[*CompA, *CompB, *CompC]{}
+	talosecs.AddFilter(filter)
+
 	makeEntA()
 	makeEntAb()
 	makeEntAc()
 	makeEntAbc()
 
-	filter := talosecs.FilterW1Excl2[*CompA, *CompB, *CompC]()
-
 	amount := 0
-	for range filter {
+	for range filter.A {
 		amount++
 	}
 
@@ -130,15 +143,16 @@ func TestFilterW1Excl2Amount(t *testing.T) {
 func TestFilterW2Excl2Amount(t *testing.T) {
 	talosecs.Reset()
 
+	filter := &talosecs.FilterW2Exc2[*CompA, *CompB, *CompC, *CompD]{}
+	talosecs.AddFilter(filter)
+
 	makeEntA()
 	makeEntAb()
 	makeEntAbc()
 	makeEntAbcd()
 
-	filter, _ := talosecs.FilterW2Excl2[*CompA, *CompB, *CompC, *CompD]()
-
 	amount := 0
-	for range filter {
+	for range filter.A {
 		amount++
 	}
 

@@ -1,7 +1,5 @@
 package talosecs
 
-import "reflect"
-
 var isInitialized bool
 
 // Init initializes all of your ECS updateSystems. Call it once on game world start before calling Update
@@ -25,6 +23,7 @@ func Update() {
 func Reset() {
 	ResetEcsState()
 	layers = nil
+	filters = nil
 
 	currentEntityId = 0
 	isInitialized = false
@@ -32,7 +31,6 @@ func Reset() {
 
 // ResetEcsState removes all entities, components and signals. Can be called to restart game scene etc
 func ResetEcsState() {
-	componentsPool = map[reflect.Type][]any{}
 	entsComponents = map[Entity][]any{}
 	componentsEnts = map[any]Entity{}
 	signals = nil
